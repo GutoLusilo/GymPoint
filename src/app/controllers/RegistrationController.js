@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { addMonths, parseISO, format } from 'date-fns';
+import { addMonths, parseISO, format, isBefore } from 'date-fns';
 import Registration from '../models/Registration';
 import Student from '../models/Student';
 import Plan from '../models/Plan';
@@ -63,6 +63,10 @@ class RegistrationController {
 
     const parsedStartDate = parseISO(start_date);
 
+    if (isBefore(parsedStartDate, new Date())) {
+      return res.status(400).json({ error: 'Past dates are not permited' });
+    }
+
     const end_date = addMonths(parsedStartDate, plan.duration);
 
     const price = plan.duration * plan.price;
@@ -88,7 +92,56 @@ class RegistrationController {
   }
 
   async update(req, res) {
-    return res.json();
+    /**
+     * Check validation of req.body
+     */
+    const schema = Yup.object().shape({
+      student_id: Yup.number().integer(),
+      plan_id: Yup.number().integer(),
+      start_date: Yup.date(),
+    });
+
+    if (!(await schema.isValid(req.body)))
+      return res.status(400).json({ error: 'Validation fails' });
+
+    const registration = await Registration.findByPk(req.params.id);
+
+    const { student_id, plan_id, start_date } = req.body;
+
+    /**
+     * Assigning `student` and `plan` variables to their new valeus only
+     * if they've changed. Otherwise, they get their former valeus.
+     */
+    const newStudentId = student_id || registration.student_id;
+
+    const plan = plan_id
+      ? await Plan.findOne({ where: { id: plan_id } })
+      : await Plan.findOne({ where: { id: registration.plan_id } });
+
+    if (start_date) {
+      const parsedStartDate = parseISO(start_date);
+
+      if (isBefore(parsedStartDate, new Date())) {
+        return res.status(400).json({ error: 'Past dates are not permited' });
+      }
+
+      const end_date = addMonths(parsedStartDate, plan.duration);
+
+      const price = plan.duration * plan.price;
+
+      const formattedStartDate = format(parsedStartDate, 'yyyy-MM-dd');
+      const formattedEndDate = format(end_date, 'yyyy-MM-dd');
+
+      await registration.update({
+        student_id: newStudentId,
+        plan_id: plan.id,
+        start_date: formattedStartDate,
+        end_date: formattedEndDate,
+        price,
+      });
+    }
+
+    return res.json(registration);
   }
 
   async delete(req, res) {
