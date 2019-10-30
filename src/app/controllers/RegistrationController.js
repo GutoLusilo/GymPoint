@@ -76,7 +76,7 @@ class RegistrationController {
     const formattedStartDate = format(parsedStartDate, 'yyyy-MM-dd');
     const formattedEndDate = format(end_date, 'yyyy-MM-dd');
 
-    await Registration.create({
+    const registration = await Registration.create({
       student_id,
       plan_id,
       start_date: formattedStartDate,
@@ -90,7 +90,15 @@ class RegistrationController {
     await Mail.sendMail({
       to: `${student.name} <${student.email}>`,
       subject: 'Nova matrícula na GymPoint!',
-      text: 'Saiba tudo sobre seu plano na nossa academia.',
+      template: 'newRegistration',
+      context: {
+        name: student.name,
+        planName: plan.title,
+        startDate: format(parseISO(registration.start_date), 'dd/MM/yyyy'),
+        endDate: format(parseISO(registration.end_date), 'dd/MM/yyyy'),
+        mensalPrice: plan.price,
+        fullPrice: registration.price,
+      },
     });
 
     return res.json({
