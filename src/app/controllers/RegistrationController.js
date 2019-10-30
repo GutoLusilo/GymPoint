@@ -4,6 +4,8 @@ import Registration from '../models/Registration';
 import Student from '../models/Student';
 import Plan from '../models/Plan';
 
+import Mail from '../../lib/Mail';
+
 class RegistrationController {
   async index(req, res) {
     const { page = 1 } = req.query;
@@ -80,6 +82,15 @@ class RegistrationController {
       start_date: formattedStartDate,
       end_date: formattedEndDate,
       price,
+    });
+
+    /**
+     * Sending email to student after creating registration
+     */
+    await Mail.sendMail({
+      to: `${student.name} <${student.email}>`,
+      subject: 'Nova matrícula na GymPoint!',
+      text: 'Saiba tudo sobre seu plano na nossa academia.',
     });
 
     return res.json({
