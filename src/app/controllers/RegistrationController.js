@@ -4,7 +4,8 @@ import Registration from '../models/Registration';
 import Student from '../models/Student';
 import Plan from '../models/Plan';
 
-import Mail from '../../lib/Mail';
+import NewRegistrationMail from '../jobs/NewRegistrationMail';
+import Queue from '../../lib/Queue';
 
 class RegistrationController {
   async index(req, res) {
@@ -87,18 +88,10 @@ class RegistrationController {
     /**
      * Sending email to student after creating registration
      */
-    await Mail.sendMail({
-      to: `${student.name} <${student.email}>`,
-      subject: 'Nova matrícula na GymPoint!',
-      template: 'newRegistration',
-      context: {
-        name: student.name,
-        planName: plan.title,
-        startDate: format(parseISO(registration.start_date), 'dd/MM/yyyy'),
-        endDate: format(parseISO(registration.end_date), 'dd/MM/yyyy'),
-        mensalPrice: plan.price,
-        fullPrice: registration.price,
-      },
+    await Queue.add(NewRegistrationMail.key, {
+      student,
+      plan,
+      registration,
     });
 
     return res.json({
