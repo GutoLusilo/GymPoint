@@ -4,7 +4,20 @@ import HelpOrder from '../models/HelpOrder';
 
 class HelpOrderController {
   async show(req, res) {
-    return res.json();
+    /**
+     * Check if student exists
+     */
+    const student = await Student.findByPk(req.params.id);
+
+    if (!student)
+      return res.status(400).json({ error: 'Student does not exist' });
+
+    const helpOrders = await HelpOrder.findAll({
+      where: { student_id: req.params.id },
+      attributes: ['id', 'question', 'answer', 'answer_at'],
+    });
+
+    return res.json(helpOrders);
   }
 
   async store(req, res) {
