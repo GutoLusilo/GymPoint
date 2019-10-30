@@ -5,6 +5,7 @@ import SessionController from './app/controllers/SessionController';
 import StudentController from './app/controllers/StudentController';
 import PlanController from './app/controllers/PlanController';
 import RegistrationController from './app/controllers/RegistrationController';
+import CheckinController from './app/controllers/CheckinController';
 
 import authMiddleware from './app/middlewares/auth';
 import checkStudentExists from './app/middlewares/checkStudentExists';
@@ -14,6 +15,9 @@ const routes = new Router();
 routes.get('/', (req, res) => res.json({ projectName: 'GymPoint' }));
 
 routes.post('/sessions', SessionController.store);
+
+routes.get('/students/:id/checkins', CheckinController.show);
+routes.post('/students/:id/checkins', CheckinController.store);
 
 routes.use(authMiddleware);
 
