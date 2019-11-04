@@ -1,17 +1,8 @@
 import * as Yup from 'yup';
-import Student from '../models/Student';
 import HelpOrder from '../models/HelpOrder';
 
 class HelpOrderController {
   async show(req, res) {
-    /**
-     * Check if student exists
-     */
-    const student = await Student.findByPk(req.params.id);
-
-    if (!student)
-      return res.status(400).json({ error: 'Student does not exist' });
-
     const helpOrders = await HelpOrder.findAll({
       where: { student_id: req.params.id },
       attributes: ['id', 'question', 'answer', 'answer_at'],
@@ -30,14 +21,6 @@ class HelpOrderController {
 
     if (!(await schema.isValid(req.body)))
       return res.status(400).json({ error: 'Validation fails' });
-
-    /**
-     * Check if student exists
-     */
-    const student = await Student.findByPk(req.params.id);
-
-    if (!student)
-      return res.status(400).json({ error: 'Student does not exist' });
 
     const { question } = req.body;
 

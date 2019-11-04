@@ -18,13 +18,29 @@ routes.get('/', (req, res) => res.json({ projectName: 'GymPoint' }));
 
 routes.post('/sessions', SessionController.store);
 
-routes.get('/students/:id/checkins', CheckinController.show);
-routes.post('/students/:id/checkins', CheckinController.store);
+routes.get(
+  '/students/:id/checkins',
+  checkStudentExists,
+  CheckinController.show
+);
+routes.post(
+  '/students/:id/checkins',
+  checkStudentExists,
+  CheckinController.store
+);
 
-routes.get('/students/:id/help-orders', HelpOrderController.show);
-routes.post('/students/:id/help-orders', HelpOrderController.store);
+routes.get(
+  '/students/:id/help-orders',
+  checkStudentExists,
+  HelpOrderController.show
+);
+routes.post(
+  '/students/:id/help-orders',
+  checkStudentExists,
+  HelpOrderController.store
+);
 
-routes.use(authMiddleware);
+routes.use(authMiddleware); // Underneath from here requires authentication
 
 routes.post('/users', UserController.store);
 routes.put('/users', UserController.update);

@@ -32,9 +32,9 @@ class PlanController {
 
   async update(req, res) {
     /**
-     * Check if plan with req.params.id exists
+     * Check if plan exists
      */
-    const plan = await Plan.findOne({ where: { id: req.params.id } });
+    const plan = await Plan.findByPk(req.params.id);
 
     if (!plan) return res.status(400).json({ error: 'Plan does not exist' });
 
@@ -59,9 +59,9 @@ class PlanController {
 
   async delete(req, res) {
     /**
-     * Check if plan with req.params.id exists
+     * Check if plan exists
      */
-    const plan = await Plan.findOne({ where: { id: req.params.id } });
+    const plan = await Plan.findByPk(req.params.id);
 
     if (!plan) return res.status(400).json({ error: 'Plan does not exist' });
 

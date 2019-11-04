@@ -32,7 +32,7 @@ class AnswerHOController {
       return res.status(400).json({ error: 'Validation fails' });
 
     /**
-     * Check if student exists
+     * Check if help order exists
      */
     const helpOrder = await HelpOrder.findByPk(req.params.id, {
       include: {

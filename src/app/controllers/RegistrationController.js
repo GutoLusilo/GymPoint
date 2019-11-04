@@ -55,12 +55,12 @@ class RegistrationController {
      */
     const { student_id, plan_id, start_date } = req.body;
 
-    const student = await Student.findOne({ where: { id: student_id } });
+    const student = await Student.findByPk(student_id);
 
     if (!student)
       return res.status(400).json({ error: 'Student does not exist' });
 
-    const plan = await Plan.findOne({ where: { id: plan_id } });
+    const plan = await Plan.findByPk(plan_id);
 
     if (!plan) return res.status(400).json({ error: 'Plan does not exist' });
 
@@ -118,6 +118,9 @@ class RegistrationController {
 
     const registration = await Registration.findByPk(req.params.id);
 
+    if (!registration)
+      return res.status(400).json({ error: 'Registration does not exist' });
+
     const { student_id, plan_id, start_date } = req.body;
 
     /**
@@ -127,8 +130,8 @@ class RegistrationController {
     const newStudentId = student_id || registration.student_id;
 
     const plan = plan_id
-      ? await Plan.findOne({ where: { id: plan_id } })
-      : await Plan.findOne({ where: { id: registration.plan_id } });
+      ? await Plan.findByPk(plan_id)
+      : await Plan.findByPk(registration.plan_id);
 
     if (start_date) {
       const parsedStartDate = parseISO(start_date);
